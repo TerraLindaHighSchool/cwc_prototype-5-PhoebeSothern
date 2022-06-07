@@ -5,11 +5,11 @@ using UnityEngine;
 public class Target : MonoBehaviour
 {
     private Rigidbody targetRB;
-    private float minSpeed = 12;
-    private float maxSpeed = 16;
-    private float maxTorque = 10;
+    private float minSpeed = 10;
+    private float maxSpeed = 15;
+    private float maxTorque = 1;
     private float xRange = 4;
-    private float ySpawnPos = -6;
+    private float ySpawnPos = 0;
     private GameManager gameManager;
     public int pointValue;
     public ParticleSystem explosionParticle;
@@ -22,7 +22,6 @@ public class Target : MonoBehaviour
         transform.position = RandomSpawnPos();
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
-
     Vector3 RandomForce()
     {
         return Vector3.up * Random.Range(minSpeed, maxSpeed);
@@ -42,14 +41,20 @@ public class Target : MonoBehaviour
     {
         if (gameManager.isGameActive)
         {
+            // one way to lose the game is by clicking on a "bad" object, the alien
             Destroy(gameObject);
             Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
             gameManager.UpdateScore(pointValue);
+            if (gameObject.CompareTag("Bad"))
+            {
+                gameManager.GameOver();
+            }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        // the other way to lose the game is if a good object falls below the screen. The comet is not affected by gravity, and optional to click, but the asteroid and star will end the game if they fall below the screen.
         Destroy(gameObject);
         if(!gameObject.CompareTag("Bad"))
         {
